@@ -4,6 +4,8 @@ services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:v0.12.5
     restart: unless-stopped
+    depends_on:
+      - searxng
     expose:
       - "8080"
     volumes:
@@ -28,10 +30,31 @@ services:
       RAG_OPENAI_API_KEY: ${SCW_GENAI_API_KEY}
       RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-bge-multilingual-gemma2}
 
+      # Standardmodell und Websuche über die eigene SearXNG-Instanz.
+      # Hinweis: Diese Werte gelten nur bei einer Neuinstallation – danach zählen die
+      # Einstellungen im Admin-Panel (in der Datenbank gespeichert).
+      DEFAULT_MODELS: ${DEFAULT_MODELS:-mistral-medium-3.5-128b}
+      ENABLE_WEB_SEARCH: "true"
+      WEB_SEARCH_ENGINE: searxng
+      SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>
+      WEB_SEARCH_RESULT_COUNT: "5"
+
       # Keine Telemetrie
       ANONYMIZED_TELEMETRY: "false"
       SCARF_NO_ANALYTICS: "true"
       DO_NOT_TRACK: "true"
+
+  searxng:
+    image: searxng/searxng:2026.10.30-ffa88e3ba
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?SEARXNG_SECRET fehlt}
+      SEARXNG_BASE_URL: http://searxng:8080/
+      FORCE_OWNERSHIP: "false"
+    volumes:
+      - ./searxng:/etc/searxng:ro
 
   caddy:
     image: caddy:2.11.9-alpine
