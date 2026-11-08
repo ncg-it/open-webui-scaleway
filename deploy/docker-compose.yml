@@ -78,6 +78,8 @@ services:
   open-terminal:
     image: ghcr.io/open-webui/open-terminal:0.17.5-slim
     restart: unless-stopped
+    # Start shells and the file browser in the home directory instead of the app code in /app
+    working_dir: /home/user
     expose:
       - "8000"
     environment:
