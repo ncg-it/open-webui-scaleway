@@ -23,7 +23,7 @@ jobs:
         working-directory: terraform/bootstrap
     steps:
       - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.9.8
       - name: Existiert der Bucket schon?
