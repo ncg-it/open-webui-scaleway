@@ -39,6 +39,10 @@ services:
       SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>
       WEB_SEARCH_RESULT_COUNT: "5"
 
+      # Spracheingabe über Scaleway Whisper (URL und Key wie OPENAI_API_*)
+      AUDIO_STT_ENGINE: openai
+      AUDIO_STT_MODEL: whisper-large-v3
+
       # Sicherheit
       CORS_ALLOW_ORIGIN: https://${DOMAIN}
       WEBUI_SESSION_COOKIE_SECURE: "true"
