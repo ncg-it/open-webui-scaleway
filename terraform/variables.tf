@@ -29,9 +29,9 @@ variable "image" {
 }
 
 variable "root_volume_size_gb" {
-  description = "Size of the system volume in GB"
+  description = "Size of the system volume in GB (Docker images: Open WebUI ~6.5 GB, full Open Terminal ~7.4 GB, plus room for updates)"
   type        = number
-  default     = 20
+  default     = 40
 }
 
 variable "data_volume_size_gb" {
