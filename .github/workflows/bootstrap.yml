@@ -1,6 +1,6 @@
-name: Bootstrap (State-Bucket)
+name: Bootstrap (state bucket)
 
-# Einmalig manuell starten: legt den Object-Storage-Bucket für den Terraform-State an.
+# Run once manually: creates the Object Storage bucket for the Terraform state.
 on:
   workflow_dispatch:
 
@@ -26,12 +26,12 @@ jobs:
       - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.9.8
-      - name: Existiert der Bucket schon?
+      - name: Does the bucket already exist?
         id: check
         run: |
           if aws s3api head-bucket --bucket ncg-it-openwebui-tfstate \
                --endpoint-url https://s3.nl-ams.scw.cloud --region nl-ams 2>/dev/null; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"; echo "Bucket existiert bereits – nichts zu tun."
+            echo "exists=true" >> "$GITHUB_OUTPUT"; echo "Bucket already exists - nothing to do."
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi

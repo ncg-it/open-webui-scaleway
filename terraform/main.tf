@@ -42,7 +42,7 @@ resource "scaleway_instance_security_group" "this" {
   }
 }
 
-# Separates Daten-Volume: überlebt einen Neuaufbau der Instance und wird per Snapshot gesichert.
+# Separate data volume: survives a rebuild of the instance and is backed up via snapshots.
 resource "scaleway_block_volume" "data" {
   name       = "${var.name}-data"
   size_in_gb = var.data_volume_size_gb
@@ -77,7 +77,7 @@ resource "scaleway_instance_server" "this" {
   }
 
   lifecycle {
-    # Änderungen am cloud-init sollen die laufende Instance nicht ungefragt neu bauen.
+    # Changes to cloud-init must not silently rebuild the running instance.
     ignore_changes = [user_data, image]
   }
 }

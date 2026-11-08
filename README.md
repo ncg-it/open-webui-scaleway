@@ -1,100 +1,99 @@
-# Open WebUI auf Scaleway
+# Open WebUI on Scaleway
 
-Open WebUI unter **https://chat.ncg-it.com**: eine Scaleway Instance mit Docker Compose und Caddy (automatisches HTTPS).
-Die Sprachmodelle und die Embeddings für Dokumente kommen über die **Scaleway Generative APIs** (OpenAI-kompatibel, Hosting in der EU). Region: **nl-ams (Amsterdam)**.
+Open WebUI at **https://chat.ncg-it.com**: one Scaleway instance running Docker Compose and Caddy (automatic HTTPS).
+The language models and the document embeddings come from the **Scaleway Generative APIs** (OpenAI-compatible, hosted in the EU). Region: **nl-ams (Amsterdam)**.
 
 ```
-Internet ─443─▶ Caddy ─▶ Open WebUI ──▶ api.scaleway.ai (Chat + Embeddings)
+Internet ─443─▶ Caddy ─▶ Open WebUI ──▶ api.scaleway.ai (chat + embeddings)
                               │
-                     Block Volume /mnt/data  (täglicher Snapshot)
+                     Block volume /mnt/data  (daily snapshot)
 ```
 
-| Teil | Wo |
+| Part | Where |
 |---|---|
-| Infrastruktur (IP, Security Group, Instance, Daten-Volume, optional DNS) | `terraform/` |
-| State-Bucket (einmalig) | `terraform/bootstrap/` |
-| App-Stack | `deploy/docker-compose.yml`, `deploy/Caddyfile` |
-| Deploy / Backup | `scripts/deploy.sh`, `scripts/snapshot.sh`, `.github/workflows/` |
+| Infrastructure (IP, security group, instance, data volume, optional DNS) | `terraform/` |
+| State bucket (one-off) | `terraform/bootstrap/` |
+| App stack | `deploy/docker-compose.yml`, `deploy/Caddyfile` |
+| Deploy / backup | `scripts/deploy.sh`, `scripts/snapshot.sh`, `.github/workflows/` |
 
-## Einmalige Einrichtung
+## One-time setup
 
-### 1. Scaleway-Zugangsdaten (IAM)
+### 1. Scaleway credentials (IAM)
 
-In der Scaleway-Konsole unter **IAM → Applications** zwei Applications anlegen, jeweils mit eigener Policy, die auf das Projekt beschränkt ist:
+In the Scaleway console under **IAM → Applications**, create two applications, each with its own policy scoped to the project:
 
-| Application | Permission Sets | Wofür |
+| Application | Permission sets | Used for |
 |---|---|---|
-| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, `BillingReadOnly`, optional `DomainsDNSFullAccess` | Terraform, Snapshots, Kosten-Stopp |
-| `open-webui-genai` | `GenerativeApisModelAccess` | Open WebUI ruft damit die Modelle auf |
+| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, `BillingReadOnly`, optional `DomainsDNSFullAccess` | Terraform, snapshots, cost guard |
+| `open-webui-genai` | `GenerativeApisModelAccess` | Open WebUI uses it to call the models |
 
-Für beide einen API-Key erzeugen. Die Secret Keys gehören in die eigene lokale Konfiguration und in GitHub-Secrets, nicht in Chats oder ins Repo.
+Create an API key for each. The secret keys belong in your local configuration and in GitHub secrets, never in chats or in the repo.
 
-### 2. Lokal Terraform ausführen (Terraform ≥ 1.6)
+### 2. Run Terraform locally (Terraform ≥ 1.6)
 
 ```bash
 export SCW_ACCESS_KEY=...  SCW_SECRET_KEY=...  SCW_DEFAULT_PROJECT_ID=...  SCW_DEFAULT_ORGANIZATION_ID=...
 export AWS_ACCESS_KEY_ID=$SCW_ACCESS_KEY AWS_SECRET_ACCESS_KEY=$SCW_SECRET_KEY
 
-# State-Bucket anlegen (einmalig)
+# Create the state bucket (one-off)
 terraform -chdir=terraform/bootstrap init && terraform -chdir=terraform/bootstrap apply
 
-# Infrastruktur
-cp terraform/terraform.tfvars.example terraform/terraform.tfvars   # SSH-Public-Key eintragen
+# Infrastructure
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars   # add your SSH public key
 terraform -chdir=terraform init
 terraform -chdir=terraform apply
 ```
 
-Die Outputs sind `public_ip`, `data_volume_id` und `ssh`.
+The outputs are `public_ip`, `data_volume_id`, `server_id` and `ssh`.
 
 ### 3. DNS
 
-Beim DNS-Anbieter von `ncg-it.com` einen Record anlegen: **A `chat` → `<public_ip>`** (TTL 300).
-Liegt die Zone bei Scaleway, kann Terraform das übernehmen: `dns_zone = "ncg-it.com"` setzen.
+At the DNS provider for `ncg-it.com`, create the record **A `chat` → `<public_ip>`** (TTL 300).
+If the zone is hosted at Scaleway, Terraform can do this: set `dns_zone = "ncg-it.com"`.
 
-### 4. App deployen
+### 4. Deploy the app
 
 ```bash
-cp deploy/.env.example deploy/.env      # WEBUI_SECRET_KEY (openssl rand -hex 32), SCW_GENAI_API_KEY, ACME_EMAIL
+cp deploy/.env.example deploy/.env      # WEBUI_SECRET_KEY (openssl rand -hex 32), SCW_GENAI_API_KEY, SEARXNG_SECRET, ACME_EMAIL
 bash scripts/deploy.sh <public_ip>
 ```
 
-Danach https://chat.ncg-it.com öffnen und den ersten Account anlegen. Er wird automatisch Admin.
-Anschließend `ENABLE_SIGNUP=false` setzen und erneut deployen. Alternativ im Admin-Panel unter *Settings → General* die Registrierung abschalten.
+Then open https://chat.ncg-it.com and create the first account. It automatically becomes admin.
+Afterwards set `ENABLE_SIGNUP=false` and deploy again, or disable sign-up in the admin panel under *Settings → General*.
 
-> Hinweis: Viele Open-WebUI-Einstellungen sind „PersistentConfig“. Die Umgebungsvariablen gelten nur beim ersten Start, danach zählt das Admin-Panel.
+> Note: many Open WebUI settings are "PersistentConfig". The environment variables only apply on first start; after that the admin panel wins.
 
-### 5. GitHub Actions (optional, für automatische Deploys)
+### 5. GitHub Actions (optional, for automatic deploys)
 
 **Secrets:** `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`, `SCW_DEFAULT_PROJECT_ID`, `SCW_DEFAULT_ORGANIZATION_ID`,
-`SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (eigener Deploy-Key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`
+`SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (dedicated deploy key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`, `SEARXNG_SECRET`
 
-**Variables:** `SERVER_HOST` (IP oder `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`
+**Variables:** `SERVER_HOST` (IP or `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`, optional `DEFAULT_MODELS`
 
-
-| Workflow | Auslöser | Was passiert |
+| Workflow | Trigger | What happens |
 |---|---|---|
-| `terraform.yml` | PR / Push auf `terraform/**` | PR: `plan`, main: `apply` |
-| `deploy.yml` | Push auf `deploy/**`, manuell | Compose-Stack aktualisieren und Healthcheck |
-| `bootstrap.yml` | manuell, einmalig | State-Bucket anlegen |
-| `backup.yml` | täglich 02:30 UTC | Snapshot des Daten-Volumes, die letzten 7 bleiben erhalten |
-| `cost-guard.yml` | alle 6 h, manuell | Kosten-Stopp: ab `COST_LIMIT_EUR` (netto) wird die Instance ausgeschaltet; mit `action=start` wieder einschalten |
+| `terraform.yml` | PR / push touching `terraform/**` | PR: `plan`, main: `apply` |
+| `deploy.yml` | push touching `deploy/**`, manual | Update the Compose stack, reload Caddy, health check |
+| `bootstrap.yml` | manual, one-off | Create the state bucket |
+| `backup.yml` | daily 02:30 UTC | Snapshot of the data volume, the latest 7 are kept |
+| `cost-guard.yml` | every 6 h, manual | Cost guard: at `COST_LIMIT_EUR` (excl. VAT) the instance is powered off; run with `action=start` to power it back on |
 
-## Betrieb
+## Operations
 
-- **Updates:** Dependabot erstellt PRs für neue Open-WebUI- und Caddy-Versionen. Nach dem Merge deployt der Workflow automatisch.
+- **Updates:** Dependabot opens PRs for new Open WebUI, SearXNG and Caddy versions. After merging, the workflow deploys automatically.
 - **Logs:** `ssh deploy@chat.ncg-it.com 'cd /opt/open-webui && docker compose logs -f open-webui'`
-- **Restore:** Snapshot in der Konsole in ein Volume umwandeln, die Instance stoppen, die Volumes tauschen (oder in Terraform importieren) und die Instance starten.
-- **Kosten:** Instance (PLAY2-MICRO), Flexible IP, 2 × 20 GB SBS und Snapshots ergeben grob 15–25 €/Monat. Dazu kommen die Token-Kosten der Generative APIs.
+- **Restore:** turn a snapshot into a volume in the console, stop the instance, swap the volumes (or import into Terraform) and start the instance.
+- **Costs:** instance (PLAY2-MICRO), flexible IP, 2 × 20 GB SBS and snapshots come to roughly €15–25/month, plus the token costs of the Generative APIs.
 
-## Websuche (SearXNG)
+## Web search (SearXNG)
 
-Open WebUI sucht über eine eigene **SearXNG**-Instanz im selben Compose-Stack (`deploy/searxng/settings.yml`).
-Sie ist nur intern erreichbar, braucht keinen API-Key und verursacht keine Zusatzkosten.
-SearXNG fragt mehrere Suchmaschinen anonym ab, ohne Nutzerkonto und ohne Tracking-Cookies.
+Open WebUI searches through a private **SearXNG** instance in the same Compose stack (`deploy/searxng/settings.yml`).
+It is only reachable internally, needs no API key and adds no extra cost.
+SearXNG queries several search engines anonymously, without a user account and without tracking cookies.
 
-- Im Chat: unter dem Eingabefeld **Websuche** einschalten (Globus-Symbol). Pro Chat steuerbar.
-- Einstellungen: *Admin Panel → Einstellungen → Websuche* (Engine `searxng`, URL `http://searxng:8080/search?q=<query>`).
-- Secret: `SEARXNG_SECRET` (GitHub-Secret, `openssl rand -hex 32`).
+- In the chat: enable **Web Search** below the input field (globe icon). Can be toggled per chat.
+- Settings: *Admin Panel → Settings → Web Search* (engine `searxng`, URL `http://searxng:8080/search?q=<query>`).
+- Secret: `SEARXNG_SECRET` (GitHub secret, `openssl rand -hex 32`).
 
-> Die Umgebungsvariablen für Websuche und Standardmodell gelten nur bei einer **Neuinstallation**.
-> Auf einer bestehenden Installation werden sie einmalig im Admin-Panel (oder in der Tabelle `config`) gesetzt.
+> The environment variables for web search and the default model only apply to a **fresh install**.
+> On an existing installation they are set once in the admin panel (or in the `config` table).

@@ -12,50 +12,50 @@ services:
       - /mnt/data/open-webui:/app/backend/data
     environment:
       WEBUI_URL: https://${DOMAIN}
-      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY fehlt}
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY is missing}
 
-      # Nur du als Nutzer: nach dem Anlegen des Admin-Accounts ENABLE_SIGNUP=false setzen
+      # Single-user setup: set ENABLE_SIGNUP=false after the admin account has been created
       ENABLE_SIGNUP: ${ENABLE_SIGNUP:-false}
       DEFAULT_USER_ROLE: pending
 
-      # LLMs über Scaleway Generative APIs (OpenAI-kompatibel)
+      # LLMs via Scaleway Generative APIs (OpenAI-compatible)
       ENABLE_OLLAMA_API: "false"
       ENABLE_OPENAI_API: "true"
       OPENAI_API_BASE_URL: ${SCW_GENAI_BASE_URL:-https://api.scaleway.ai/v1}
-      OPENAI_API_KEY: ${SCW_GENAI_API_KEY:?SCW_GENAI_API_KEY fehlt}
+      OPENAI_API_KEY: ${SCW_GENAI_API_KEY:?SCW_GENAI_API_KEY is missing}
 
-      # Embeddings für Dokumente (RAG) ebenfalls über Scaleway – kein lokales Modell nötig
+      # Document embeddings (RAG) via Scaleway as well - no local model needed
       RAG_EMBEDDING_ENGINE: openai
       RAG_OPENAI_API_BASE_URL: ${SCW_GENAI_BASE_URL:-https://api.scaleway.ai/v1}
       RAG_OPENAI_API_KEY: ${SCW_GENAI_API_KEY}
       RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-bge-multilingual-gemma2}
 
-      # Standardmodell und Websuche über die eigene SearXNG-Instanz.
-      # Hinweis: Diese Werte gelten nur bei einer Neuinstallation – danach zählen die
-      # Einstellungen im Admin-Panel (in der Datenbank gespeichert).
+      # Default model and web search via the private SearXNG instance.
+      # Note: these values only apply to a fresh install - afterwards the
+      # admin panel settings (stored in the database) take precedence.
       DEFAULT_MODELS: ${DEFAULT_MODELS:-mistral-medium-3.5-128b}
       ENABLE_WEB_SEARCH: "true"
       WEB_SEARCH_ENGINE: searxng
       SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>
       WEB_SEARCH_RESULT_COUNT: "5"
 
-      # Spracheingabe über Scaleway Whisper (URL und Key wie OPENAI_API_*)
+      # Speech-to-text via Scaleway Whisper (URL and key same as OPENAI_API_*)
       AUDIO_STT_ENGINE: openai
       AUDIO_STT_MODEL: whisper-large-v3
 
-      # Sicherheit
+      # Security
       CORS_ALLOW_ORIGIN: https://${DOMAIN}
       WEBUI_SESSION_COOKIE_SECURE: "true"
       WEBUI_SESSION_COOKIE_SAME_SITE: strict
       WEBUI_AUTH_COOKIE_SECURE: "true"
       WEBUI_AUTH_COOKIE_SAME_SITE: strict
-      # Gelten nur bei Neuinstallation (danach Datenbank/Admin-Panel):
+      # Only apply to a fresh install (afterwards: database / admin panel):
       ENABLE_MFA: "true"
       JWT_EXPIRES_IN: 7d
       ENABLE_COMMUNITY_SHARING: "false"
       SHOW_ADMIN_DETAILS: "false"
 
-      # Keine Telemetrie
+      # No telemetry
       ANONYMIZED_TELEMETRY: "false"
       SCARF_NO_ANALYTICS: "true"
       DO_NOT_TRACK: "true"
@@ -66,7 +66,7 @@ services:
     expose:
       - "8080"
     environment:
-      SEARXNG_SECRET: ${SEARXNG_SECRET:?SEARXNG_SECRET fehlt}
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?SEARXNG_SECRET is missing}
       SEARXNG_BASE_URL: http://searxng:8080/
       FORCE_OWNERSHIP: "false"
     volumes:
