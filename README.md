@@ -103,10 +103,10 @@ SearXNG queries several search engines anonymously, without a user account and w
 [Open Terminal](https://github.com/open-webui/open-terminal) runs as its own container in the stack and gives the chat
 a sandboxed Linux shell, a file browser and a terminal panel. The model can also use it as a tool to run commands and edit files.
 
-- Image: `ghcr.io/open-webui/open-terminal:<version>-slim` (Python, git, curl, jq; no sudo, no Docker socket).
-  Switch to the full image (`<version>`) if you need Node.js, build tools or a browser.
+- Image: `ghcr.io/open-webui/open-terminal:<version>` (full image: Python, Node.js, build tools, LibreOffice,
+  data libraries, headless browser; no Docker socket). Lets the model create Office/PDF files and charts.
 - Not publicly reachable: only Open WebUI talks to it on the internal Docker network. Outbound internet access is allowed.
-- Home directory: `/mnt/data/open-terminal` on the data volume (included in snapshots). Limits: 2 GB RAM, 512 processes.
+- Home directory: `/mnt/data/open-terminal` on the data volume (included in snapshots). Limits: 3 GB RAM, 1024 processes.
 - Secret: `OPEN_TERMINAL_API_KEY` (GitHub secret, `openssl rand -hex 32`). It grants full command and file access inside the container.
 - Connect once in *Admin Panel → Settings → Integrations → Open Terminal*: URL `http://open-terminal:8000` plus the API key, then enable it.
   In the chat, select the terminal to get the terminal panel and file browser.
@@ -122,3 +122,16 @@ The app is branded as **NCG IT Consulting Chat** (`WEBUI_NAME`) with its own ico
   `python3 scripts/render-branding.py deploy/branding`. `favicon.svg` is maintained by hand.
 - License: Open WebUI allows replacing its branding for deployments with up to 50 users
   (or with an enterprise license). See https://docs.openwebui.com/license.
+
+## Features configured in the database
+
+These live in Open WebUI's database (Admin Panel / Workspace), not in this repo. A fresh install needs them set again.
+
+| Feature | Where | Setting |
+|---|---|---|
+| Memory | Admin → Settings, user Settings → Personalization | `memories.enable`, `memories.background_review.enable` = true; user setting *Memory* on |
+| Sub-agents (parallel research) | Admin → Settings | `subagents.enable` = true, `subagents.max_concurrent` = 5, `subagents.max_iterations` = 20 |
+| Default model | Workspace → Models | `mistral-medium-3.5-128b`: native function calling, GitHub MCP tool, web search and code interpreter on by default, system prompt with tool, GitHub and memory rules |
+| NCG Consulting | Workspace → Models | Custom model on Mistral Medium with the *NCG IT Consulting* knowledge collection |
+| Research | Workspace → Models | Custom model that plans sub-questions, researches them with parallel sub-agents and writes a cited report |
+| Open Terminal | Admin → Settings → Integrations | Connection `http://open-terminal:8000` with `OPEN_TERMINAL_API_KEY` |
