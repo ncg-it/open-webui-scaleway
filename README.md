@@ -68,7 +68,7 @@ Afterwards set `ENABLE_SIGNUP=false` and deploy again, or disable sign-up in the
 **Secrets:** `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`, `SCW_DEFAULT_PROJECT_ID`, `SCW_DEFAULT_ORGANIZATION_ID`,
 `SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (dedicated deploy key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`, `SEARXNG_SECRET`, `OPEN_TERMINAL_API_KEY`
 
-**Variables:** `SERVER_HOST` (IP or `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`, optional `DEFAULT_MODELS`
+**Variables:** `SERVER_HOST` (IP or `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`, optional `DEFAULT_MODELS`, `WEBUI_NAME` (default `NCG IT Consulting Chat`)
 
 | Workflow | Trigger | What happens |
 |---|---|---|
