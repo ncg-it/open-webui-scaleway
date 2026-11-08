@@ -1,0 +1,26 @@
+name: Cockpit
+
+# Manual helper for Scaleway Cockpit (monitoring):
+# list = show the data sources per region, sync = sync all regions' data sources into Grafana.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list = show data sources, sync = sync them into Grafana"
+        type: choice
+        options: [list, sync]
+        default: list
+
+permissions:
+  contents: read
+
+jobs:
+  cockpit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash scripts/cockpit.sh
+        env:
+          ACTION: ${{ inputs.action }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
