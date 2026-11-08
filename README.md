@@ -24,7 +24,7 @@ In der Scaleway-Konsole unter **IAM → Applications** zwei Applications anlegen
 
 | Application | Permission Sets | Wofür |
 |---|---|---|
-| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, optional `DomainsDNSFullAccess` | Terraform, Snapshots |
+| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, `BillingReadOnly`, optional `DomainsDNSFullAccess` | Terraform, Snapshots, Kosten-Stopp |
 | `open-webui-genai` | `GenerativeApisModelAccess` | Open WebUI ruft damit die Modelle auf |
 
 Für beide einen API-Key erzeugen. Die Secret Keys gehören in die eigene lokale Konfiguration und in GitHub-Secrets, nicht in Chats oder ins Repo.
@@ -68,7 +68,7 @@ Anschließend `ENABLE_SIGNUP=false` setzen und erneut deployen. Alternativ im Ad
 **Secrets:** `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`, `SCW_DEFAULT_PROJECT_ID`, `SCW_DEFAULT_ORGANIZATION_ID`,
 `SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (eigener Deploy-Key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`
 
-**Variables:** `SERVER_HOST` (IP oder `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`
+**Variables:** `SERVER_HOST` (IP oder `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`
 
 
 | Workflow | Auslöser | Was passiert |
@@ -77,6 +77,7 @@ Anschließend `ENABLE_SIGNUP=false` setzen und erneut deployen. Alternativ im Ad
 | `deploy.yml` | Push auf `deploy/**`, manuell | Compose-Stack aktualisieren und Healthcheck |
 | `bootstrap.yml` | manuell, einmalig | State-Bucket anlegen |
 | `backup.yml` | täglich 02:30 UTC | Snapshot des Daten-Volumes, die letzten 7 bleiben erhalten |
+| `cost-guard.yml` | alle 6 h, manuell | Kosten-Stopp: ab `COST_LIMIT_EUR` (netto) wird die Instance ausgeschaltet; mit `action=start` wieder einschalten |
 
 ## Betrieb
 

@@ -16,3 +16,8 @@ output "data_volume_id" {
 output "url" {
   value = "https://${var.domain}"
 }
+
+output "server_id" {
+  description = "ID der Instance (für den Kosten-Stopp, als GitHub-Variable SERVER_ID hinterlegen)"
+  value       = element(split("/", scaleway_instance_server.this.id), 1)
+}

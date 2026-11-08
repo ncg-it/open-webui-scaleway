@@ -1,0 +1,38 @@
+name: Kosten-Stopp
+
+# Prüft alle 6 Stunden die Scaleway-Kosten des laufenden Monats.
+# Ab COST_LIMIT_EUR (Repo-Variable, netto) wird die Instance ausgeschaltet und der Lauf schlägt fehl
+# -> GitHub schickt eine E-Mail. Wieder einschalten: manuell mit action=start starten.
+on:
+  schedule:
+    - cron: "15 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "check = Kosten prüfen, start = Instance wieder einschalten"
+        type: choice
+        options: [check, start]
+        default: check
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cost-guard
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    if: vars.SERVER_ID != ''
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/cost-guard.sh
+        env:
+          ACTION: ${{ inputs.action || 'check' }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
+          SERVER_ID: ${{ vars.SERVER_ID }}
+          ZONE: nl-ams-1
+          COST_LIMIT_EUR: ${{ vars.COST_LIMIT_EUR || '30' }}
+          WARN_PERCENT: "80"
