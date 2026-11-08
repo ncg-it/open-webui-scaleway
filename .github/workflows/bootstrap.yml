@@ -36,4 +36,6 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.check.outputs.exists == 'false'
-        run: terraform init -input=false && terraform apply -input=false -auto-approve
+        run: |
+          for i in 1 2 3 4; do terraform init -input=false && break; [ $i = 4 ] && exit 1; sleep 15; done
+          terraform apply -input=false -auto-approve
