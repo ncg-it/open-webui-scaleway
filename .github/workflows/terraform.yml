@@ -37,8 +37,8 @@ jobs:
         with:
           terraform_version: 1.9.8
       - run: terraform fmt -check -recursive
-      - name: terraform init (mit Wiederholung bei Netzwerkfehlern)
-        run: for i in 1 2 3 4; do terraform init -input=false && exit 0; echo "Versuch $i fehlgeschlagen"; sleep 15; done; exit 1
+      - name: terraform init (retry on network errors)
+        run: for i in 1 2 3 4; do terraform init -input=false && exit 0; echo "Attempt $i failed"; sleep 15; done; exit 1
       - run: terraform validate
       - run: terraform plan -input=false -out=tfplan
       - if: github.event_name != 'pull_request'

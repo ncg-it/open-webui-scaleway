@@ -1,15 +1,15 @@
-name: Kosten-Stopp
+name: Cost guard
 
-# Prüft alle 6 Stunden die Scaleway-Kosten des laufenden Monats.
-# Ab COST_LIMIT_EUR (Repo-Variable, netto) wird die Instance ausgeschaltet und der Lauf schlägt fehl
-# -> GitHub schickt eine E-Mail. Wieder einschalten: manuell mit action=start starten.
+# Checks the Scaleway costs of the current month every 6 hours.
+# Once COST_LIMIT_EUR (repo variable, excl. VAT) is reached, the instance is powered off and the run fails
+# -> GitHub sends an email. To power it back on: run manually with action=start.
 on:
   schedule:
     - cron: "15 */6 * * *"
   workflow_dispatch:
     inputs:
       action:
-        description: "check = Kosten prüfen, start = Instance wieder einschalten"
+        description: "check = check costs, start = power the instance back on"
         type: choice
         options: [check, start]
         default: check

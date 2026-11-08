@@ -1,64 +1,64 @@
 variable "region" {
-  description = "Scaleway-Region"
+  description = "Scaleway region"
   type        = string
   default     = "nl-ams"
 }
 
 variable "zone" {
-  description = "Scaleway-Zone"
+  description = "Scaleway zone"
   type        = string
   default     = "nl-ams-1"
 }
 
 variable "name" {
-  description = "Präfix für alle Ressourcen"
+  description = "Prefix for all resources"
   type        = string
   default     = "open-webui"
 }
 
 variable "instance_type" {
-  description = "Instance-Typ (2 vCPU / 4 GB RAM reichen, da Modelle und Embeddings über die Generative APIs laufen)"
+  description = "Instance type (2 vCPU / 4 GB RAM is enough, since models and embeddings run via the Generative APIs)"
   type        = string
   default     = "PLAY2-MICRO"
 }
 
 variable "image" {
-  description = "Betriebssystem-Image"
+  description = "Operating system image"
   type        = string
   default     = "ubuntu_noble"
 }
 
 variable "root_volume_size_gb" {
-  description = "Größe des System-Volumes in GB"
+  description = "Size of the system volume in GB"
   type        = number
   default     = 20
 }
 
 variable "data_volume_size_gb" {
-  description = "Größe des Daten-Volumes (Chats, Uploads, Vektor-DB, Zertifikate) in GB"
+  description = "Size of the data volume (chats, uploads, vector DB, certificates) in GB"
   type        = number
   default     = 20
 }
 
 variable "ssh_public_key" {
-  description = "Öffentlicher SSH-Key für den Benutzer 'deploy'"
+  description = "Public SSH key for the user 'deploy'"
   type        = string
 }
 
 variable "ssh_allowed_cidrs" {
-  description = "Quell-Netze für SSH (Port 22). GitHub-Actions-Runner haben wechselnde IPs, daher Standard 0.0.0.0/0 – Login ist nur per Key möglich."
+  description = "Source networks for SSH (port 22). GitHub Actions runners have changing IPs, hence the default 0.0.0.0/0 - login is key-only."
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
 variable "domain" {
-  description = "Vollständiger Hostname von Open WebUI"
+  description = "Fully qualified hostname of Open WebUI"
   type        = string
   default     = "chat.ncg-it.com"
 }
 
 variable "dns_zone" {
-  description = "Nur setzen, wenn die DNS-Zone bei Scaleway Domains & DNS liegt (z. B. 'ncg-it.com'). Leer = A-Record manuell beim DNS-Anbieter anlegen."
+  description = "Only set if the DNS zone is hosted at Scaleway Domains & DNS (e.g. 'ncg-it.com'). Empty = create the A record manually at the DNS provider."
   type        = string
   default     = ""
 }

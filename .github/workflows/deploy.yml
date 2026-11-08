@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: SSH einrichten
+      - name: Set up SSH
         run: |
           install -m 700 -d ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
@@ -32,7 +32,7 @@ jobs:
             ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts
           fi
 
-      - name: .env aus Secrets erzeugen
+      - name: Generate .env from secrets
         run: |
           umask 077
           cat > deploy/.env <<EOF
@@ -46,7 +46,7 @@ jobs:
           ENABLE_SIGNUP=${{ vars.ENABLE_SIGNUP || 'false' }}
           EOF
 
-      - name: Deployen
+      - name: Deploy
         run: bash scripts/deploy.sh "$HOST" ~/.ssh/id_ed25519
 
       - name: Healthcheck
@@ -55,4 +55,4 @@ jobs:
             curl -fsS "https://${{ vars.DOMAIN || 'chat.ncg-it.com' }}/health" && exit 0
             sleep 10
           done
-          echo "Healthcheck fehlgeschlagen"; exit 1
+          echo "Health check failed"; exit 1

@@ -1,4 +1,4 @@
-# Einmalig ausführen: legt den Bucket für den Terraform-State an (lokaler State).
+# Run once: creates the bucket for the Terraform state (uses local state).
 terraform {
   required_version = ">= 1.6.0"
   required_providers {

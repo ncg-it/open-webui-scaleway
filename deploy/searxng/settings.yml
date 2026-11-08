@@ -1,12 +1,12 @@
-# SearXNG – private Metasuchmaschine nur für Open WebUI (nicht öffentlich erreichbar).
-# Ergänzt die Standard-Einstellungen von SearXNG; secret_key kommt aus SEARXNG_SECRET.
+# SearXNG - private metasearch engine used only by Open WebUI (not publicly reachable).
+# Extends the SearXNG default settings; secret_key comes from SEARXNG_SECRET.
 use_default_settings: true
 
 general:
   instance_name: "ncg-search"
 
 server:
-  limiter: false        # nur interner Zugriff aus Open WebUI
+  limiter: false        # internal access from Open WebUI only
   image_proxy: false
   public_instance: false
 
@@ -15,7 +15,7 @@ search:
   default_lang: "auto"
   formats:
     - html
-    - json              # von Open WebUI benötigt
+    - json              # required by Open WebUI
 
 outgoing:
   request_timeout: 5.0

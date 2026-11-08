@@ -35,7 +35,7 @@ write_files:
       { "log-driver": "local", "log-opts": { "max-size": "20m", "max-file": "5" } }
 
 runcmd:
-  # Daten-Volume einbinden (nur beim allerersten Mal formatieren)
+  # Mount the data volume (format only on the very first boot)
   - |
     DEV=/dev/disk/by-id/scsi-0SCW_sbs_volume-${data_volume_id}
     for i in $(seq 1 60); do [ -e "$DEV" ] && break; sleep 2; done

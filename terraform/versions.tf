@@ -8,8 +8,8 @@ terraform {
     }
   }
 
-  # State liegt in Scaleway Object Storage (Bucket wird mit terraform/bootstrap angelegt).
-  # Zugangsdaten: AWS_ACCESS_KEY_ID=$SCW_ACCESS_KEY und AWS_SECRET_ACCESS_KEY=$SCW_SECRET_KEY
+  # State is stored in Scaleway Object Storage (bucket is created with terraform/bootstrap).
+  # Credentials: AWS_ACCESS_KEY_ID=$SCW_ACCESS_KEY and AWS_SECRET_ACCESS_KEY=$SCW_SECRET_KEY
   backend "s3" {
     bucket = "ncg-it-openwebui-tfstate"
     key    = "open-webui/terraform.tfstate"

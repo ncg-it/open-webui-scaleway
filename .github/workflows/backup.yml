@@ -1,4 +1,4 @@
-name: Backup (Volume-Snapshot)
+name: Backup (volume snapshot)
 
 on:
   schedule:
