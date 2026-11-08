@@ -2,7 +2,7 @@ name: open-webui
 
 services:
   open-webui:
-    image: ghcr.io/open-webui/open-webui:v0.12.5
+    image: ghcr.io/open-webui/open-webui:v0.13.2
     restart: unless-stopped
     depends_on:
       - searxng
