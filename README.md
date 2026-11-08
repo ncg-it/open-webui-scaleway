@@ -54,7 +54,7 @@ If the zone is hosted at Scaleway, Terraform can do this: set `dns_zone = "ncg-i
 ### 4. Deploy the app
 
 ```bash
-cp deploy/.env.example deploy/.env      # WEBUI_SECRET_KEY (openssl rand -hex 32), SCW_GENAI_API_KEY, SEARXNG_SECRET, ACME_EMAIL
+cp deploy/.env.example deploy/.env      # WEBUI_SECRET_KEY (openssl rand -hex 32), SCW_GENAI_API_KEY, SEARXNG_SECRET, OPEN_TERMINAL_API_KEY, ACME_EMAIL
 bash scripts/deploy.sh <public_ip>
 ```
 
@@ -66,7 +66,7 @@ Afterwards set `ENABLE_SIGNUP=false` and deploy again, or disable sign-up in the
 ### 5. GitHub Actions (optional, for automatic deploys)
 
 **Secrets:** `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`, `SCW_DEFAULT_PROJECT_ID`, `SCW_DEFAULT_ORGANIZATION_ID`,
-`SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (dedicated deploy key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`, `SEARXNG_SECRET`
+`SSH_PUBLIC_KEY`, `SSH_PRIVATE_KEY` (dedicated deploy key), optional `SSH_KNOWN_HOSTS`, `WEBUI_SECRET_KEY`, `SCW_GENAI_API_KEY`, `SEARXNG_SECRET`, `OPEN_TERMINAL_API_KEY`
 
 **Variables:** `SERVER_HOST` (IP or `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`, `SERVER_ID`, `COST_LIMIT_EUR`, optional `DEFAULT_MODELS`
 
@@ -80,7 +80,7 @@ Afterwards set `ENABLE_SIGNUP=false` and deploy again, or disable sign-up in the
 
 ## Operations
 
-- **Updates:** Dependabot opens PRs for new Open WebUI, SearXNG and Caddy versions. After merging, the workflow deploys automatically.
+- **Updates:** Dependabot opens PRs for new Open WebUI, SearXNG, Open Terminal and Caddy versions. After merging, the workflow deploys automatically.
 - **Logs:** `ssh deploy@chat.ncg-it.com 'cd /opt/open-webui && docker compose logs -f open-webui'`
 - **Restore:** turn a snapshot into a volume in the console, stop the instance, swap the volumes (or import into Terraform) and start the instance.
 - **Costs:** instance (PLAY2-MICRO), flexible IP, 2 × 20 GB SBS and snapshots come to roughly €15–25/month, plus the token costs of the Generative APIs.
@@ -97,3 +97,16 @@ SearXNG queries several search engines anonymously, without a user account and w
 
 > The environment variables for web search and the default model only apply to a **fresh install**.
 > On an existing installation they are set once in the admin panel (or in the `config` table).
+
+## Terminal (Open Terminal)
+
+[Open Terminal](https://github.com/open-webui/open-terminal) runs as its own container in the stack and gives the chat
+a sandboxed Linux shell, a file browser and a terminal panel. The model can also use it as a tool to run commands and edit files.
+
+- Image: `ghcr.io/open-webui/open-terminal:<version>-slim` (Python, git, curl, jq; no sudo, no Docker socket).
+  Switch to the full image (`<version>`) if you need Node.js, build tools or a browser.
+- Not publicly reachable: only Open WebUI talks to it on the internal Docker network. Outbound internet access is allowed.
+- Home directory: `/mnt/data/open-terminal` on the data volume (included in snapshots). Limits: 2 GB RAM, 512 processes.
+- Secret: `OPEN_TERMINAL_API_KEY` (GitHub secret, `openssl rand -hex 32`). It grants full command and file access inside the container.
+- Connect once in *Admin Panel → Settings → Integrations → Open Terminal*: URL `http://open-terminal:8000` plus the API key, then enable it.
+  In the chat, select the terminal to get the terminal panel and file browser.
