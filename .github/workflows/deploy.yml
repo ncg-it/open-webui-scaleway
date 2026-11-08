@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ["deploy/**", ".github/workflows/deploy.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      HOST: ${{ vars.SERVER_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SSH einrichten
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [ -n "${{ secrets.SSH_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts
+          fi
+
+      - name: .env aus Secrets erzeugen
+        run: |
+          umask 077
+          cat > deploy/.env <<EOF
+          DOMAIN=${{ vars.DOMAIN || 'chat.ncg-it.com' }}
+          ACME_EMAIL=${{ vars.ACME_EMAIL }}
+          WEBUI_SECRET_KEY=${{ secrets.WEBUI_SECRET_KEY }}
+          SCW_GENAI_API_KEY=${{ secrets.SCW_GENAI_API_KEY }}
+          SCW_GENAI_BASE_URL=${{ vars.SCW_GENAI_BASE_URL || 'https://api.scaleway.ai/v1' }}
+          ENABLE_SIGNUP=${{ vars.ENABLE_SIGNUP || 'false' }}
+          EOF
+
+      - name: Deployen
+        run: bash scripts/deploy.sh "$HOST" ~/.ssh/id_ed25519
+
+      - name: Healthcheck
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS "https://${{ vars.DOMAIN || 'chat.ncg-it.com' }}/health" && exit 0
+            sleep 10
+          done
+          echo "Healthcheck fehlgeschlagen"; exit 1

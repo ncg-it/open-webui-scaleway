@@ -1,0 +1,51 @@
+name: open-webui
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.12.5
+    restart: unless-stopped
+    expose:
+      - "8080"
+    volumes:
+      - /mnt/data/open-webui:/app/backend/data
+    environment:
+      WEBUI_URL: https://${DOMAIN}
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY fehlt}
+
+      # Nur du als Nutzer: nach dem Anlegen des Admin-Accounts ENABLE_SIGNUP=false setzen
+      ENABLE_SIGNUP: ${ENABLE_SIGNUP:-false}
+      DEFAULT_USER_ROLE: pending
+
+      # LLMs über Scaleway Generative APIs (OpenAI-kompatibel)
+      ENABLE_OLLAMA_API: "false"
+      ENABLE_OPENAI_API: "true"
+      OPENAI_API_BASE_URL: ${SCW_GENAI_BASE_URL:-https://api.scaleway.ai/v1}
+      OPENAI_API_KEY: ${SCW_GENAI_API_KEY:?SCW_GENAI_API_KEY fehlt}
+
+      # Embeddings für Dokumente (RAG) ebenfalls über Scaleway – kein lokales Modell nötig
+      RAG_EMBEDDING_ENGINE: openai
+      RAG_OPENAI_API_BASE_URL: ${SCW_GENAI_BASE_URL:-https://api.scaleway.ai/v1}
+      RAG_OPENAI_API_KEY: ${SCW_GENAI_API_KEY}
+      RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-bge-multilingual-gemma2}
+
+      # Keine Telemetrie
+      ANONYMIZED_TELEMETRY: "false"
+      SCARF_NO_ANALYTICS: "true"
+      DO_NOT_TRACK: "true"
+
+  caddy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    depends_on:
+      - open-webui
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /mnt/data/caddy/data:/data
+      - /mnt/data/caddy/config:/config

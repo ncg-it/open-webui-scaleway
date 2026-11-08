@@ -1,0 +1,49 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+groups:
+  - docker
+
+users:
+  - name: deploy
+    groups: [docker]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+packages:
+  - docker.io
+  - docker-compose-v2
+  - unattended-upgrades
+  - fail2ban
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/10-hardening.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  - path: /etc/docker/daemon.json
+    content: |
+      { "log-driver": "local", "log-opts": { "max-size": "20m", "max-file": "5" } }
+
+runcmd:
+  # Daten-Volume einbinden (nur beim allerersten Mal formatieren)
+  - |
+    DEV=/dev/disk/by-id/scsi-0SCW_sbs_volume-${data_volume_id}
+    for i in $(seq 1 60); do [ -e "$DEV" ] && break; sleep 2; done
+    blkid "$DEV" >/dev/null 2>&1 || mkfs.ext4 -L owui-data "$DEV"
+    mkdir -p /mnt/data
+    grep -q "$DEV" /etc/fstab || echo "$DEV /mnt/data ext4 defaults,nofail 0 2" >> /etc/fstab
+    mount -a
+    mkdir -p /mnt/data/open-webui /mnt/data/caddy/data /mnt/data/caddy/config
+  - mkdir -p /opt/open-webui && chown deploy:deploy /opt/open-webui
+  - systemctl enable --now docker fail2ban
+  - systemctl restart ssh

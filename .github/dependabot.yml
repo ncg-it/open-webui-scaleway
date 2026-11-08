@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: docker-compose
+    directory: /deploy
+    schedule:
+      interval: weekly
+  - package-ecosystem: terraform
+    directories: ["/terraform", "/terraform/bootstrap"]
+    schedule:
+      interval: monthly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

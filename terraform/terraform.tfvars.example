@@ -1,0 +1,6 @@
+# Kopieren nach terraform.tfvars (wird nicht eingecheckt)
+ssh_public_key = "ssh-ed25519 AAAA... nils@laptop"
+domain         = "chat.ncg-it.com"
+
+# Nur wenn ncg-it.com bei Scaleway DNS liegt:
+# dns_zone = "ncg-it.com"

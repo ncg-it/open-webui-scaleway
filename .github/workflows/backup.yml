@@ -1,0 +1,23 @@
+name: Backup (Volume-Snapshot)
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    if: vars.DATA_VOLUME_ID != ''
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/snapshot.sh
+        env:
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          DATA_VOLUME_ID: ${{ vars.DATA_VOLUME_ID }}
+          ZONE: nl-ams-1
+          KEEP: "7"
