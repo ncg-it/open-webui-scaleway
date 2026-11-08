@@ -92,7 +92,9 @@ services:
   # Only reachable from Open WebUI on the internal network (no published port).
   # Connect it in Admin -> Settings -> Integrations -> Open Terminal: http://open-terminal:8000
   open-terminal:
-    image: ghcr.io/open-webui/open-terminal:0.17.5-slim
+    # Full image: Python, Node.js, build tools, LibreOffice, data libraries and a headless browser,
+    # so the model can create Word/Excel/PowerPoint/PDF files and charts.
+    image: ghcr.io/open-webui/open-terminal:0.17.5
     restart: unless-stopped
     # Start shells and the file browser in the home directory instead of the app code in /app
     working_dir: /home/user
@@ -103,8 +105,8 @@ services:
     volumes:
       # Home directory on the data volume: persists across updates, included in snapshots
       - /mnt/data/open-terminal:/home/user
-    mem_limit: 2g
-    pids_limit: 512
+    mem_limit: 3g
+    pids_limit: 1024
 
   caddy:
     image: caddy:2.11.9-alpine
