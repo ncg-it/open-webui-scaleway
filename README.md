@@ -110,3 +110,15 @@ a sandboxed Linux shell, a file browser and a terminal panel. The model can also
 - Secret: `OPEN_TERMINAL_API_KEY` (GitHub secret, `openssl rand -hex 32`). It grants full command and file access inside the container.
 - Connect once in *Admin Panel → Settings → Integrations → Open Terminal*: URL `http://open-terminal:8000` plus the API key, then enable it.
   In the chat, select the terminal to get the terminal panel and file browser.
+
+## Branding
+
+The app is branded as **NCG IT Consulting Chat** (`WEBUI_NAME`) with its own icon set in `deploy/branding/`
+(navy-to-teal rounded square, white chat bubble, connected nodes with an amber "spark").
+
+- The icons replace Open WebUI's build assets via read-only bind mounts in `docker-compose.yml`;
+  Open WebUI copies them into its static directory on every start.
+- Re-render after changing the design (needs Pillow, e.g. inside the Open WebUI container):
+  `python3 scripts/render-branding.py deploy/branding`. `favicon.svg` is maintained by hand.
+- License: Open WebUI allows replacing its branding for deployments with up to 50 users
+  (or with an enterprise license). See https://docs.openwebui.com/license.
