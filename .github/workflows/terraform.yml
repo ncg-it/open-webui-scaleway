@@ -28,7 +28,6 @@ env:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'pull_request' && 'plan' || 'production' }}
     defaults:
       run:
         working-directory: terraform

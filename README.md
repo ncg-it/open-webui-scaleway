@@ -70,12 +70,12 @@ Anschließend `ENABLE_SIGNUP=false` setzen und erneut deployen. Alternativ im Ad
 
 **Variables:** `SERVER_HOST` (IP oder `chat.ncg-it.com`), `DOMAIN`, `ACME_EMAIL`, `DATA_VOLUME_ID`
 
-**Environments:** `plan` und `production`. Für `production` am besten *Required reviewers* einschalten.
 
 | Workflow | Auslöser | Was passiert |
 |---|---|---|
 | `terraform.yml` | PR / Push auf `terraform/**` | PR: `plan`, main: `apply` |
 | `deploy.yml` | Push auf `deploy/**`, manuell | Compose-Stack aktualisieren und Healthcheck |
+| `bootstrap.yml` | manuell, einmalig | State-Bucket anlegen |
 | `backup.yml` | täglich 02:30 UTC | Snapshot des Daten-Volumes, die letzten 7 bleiben erhalten |
 
 ## Betrieb
