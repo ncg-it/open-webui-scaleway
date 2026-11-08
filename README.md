@@ -24,7 +24,7 @@ In the Scaleway console under **IAM → Applications**, create two applications,
 
 | Application | Permission sets | Used for |
 |---|---|---|
-| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, `BillingReadOnly`, optional `DomainsDNSFullAccess` | Terraform, snapshots, cost guard |
+| `open-webui-terraform` | `InstancesFullAccess`, `BlockStorageFullAccess`, `ObjectStorageFullAccess`, `BillingReadOnly`, `ObservabilityFullAccess`, optional `DomainsDNSFullAccess` | Terraform, snapshots, cost guard, Cockpit |
 | `open-webui-genai` | `GenerativeApisModelAccess` | Open WebUI uses it to call the models |
 
 Create an API key for each. The secret keys belong in your local configuration and in GitHub secrets, never in chats or in the repo.
@@ -77,6 +77,7 @@ Afterwards set `ENABLE_SIGNUP=false` and deploy again, or disable sign-up in the
 | `bootstrap.yml` | manual, one-off | Create the state bucket |
 | `backup.yml` | daily 02:30 UTC | Snapshot of the data volume, the latest 7 are kept |
 | `cost-guard.yml` | every 6 h, manual | Cost guard: at `COST_LIMIT_EUR` (excl. VAT) the instance is powered off; run with `action=start` to power it back on |
+| `cockpit.yml` | manual | Cockpit monitoring: `list` shows data sources per region, `sync` syncs all regions into Grafana (Generative API metrics live in fr-par) |
 
 ## Operations
 
