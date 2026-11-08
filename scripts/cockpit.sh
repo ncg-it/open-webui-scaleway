@@ -20,8 +20,8 @@ call() {
   out=$(curl -sS -w '\n%{http_code}' "${AUTH[@]}" "$@")
   code=${out##*$'\n'}; out=${out%$'\n'*}
   if [ "$code" -ge 300 ]; then
-    echo "::error::HTTP $code for $*: $(jq -r '.message // .' <<<"$out" 2>/dev/null || echo "$out")"
-    [ "$code" = 403 ] && echo "::error::The API key lacks Cockpit permissions. Add the permission set 'ObservabilityFullAccess' to the policy of the open-webui-terraform IAM application."
+    echo "::error::HTTP $code for ${*: -1}: $(jq -r '.message // .' <<<"$out" 2>/dev/null || echo "$out")" >&2
+    [ "$code" = 403 ] && echo "::error::The API key lacks Cockpit permissions. Add the permission set 'ObservabilityFullAccess' to the policy of the open-webui-terraform IAM application." >&2
     return 1
   fi
   printf '%s' "$out"
