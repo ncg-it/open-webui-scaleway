@@ -59,6 +59,12 @@ services:
       AUDIO_STT_ENGINE: openai
       AUDIO_STT_MODEL: whisper-large-v3
 
+      # Token usage tracking (enabled by default for new installations)
+      # Tracks prompt and completion tokens per user, model, and conversation
+      # For Scaleway Generative APIs, token counts are returned in response headers
+      ENABLE_TOKEN_USAGE_TRACKING: ${ENABLE_TOKEN_USAGE_TRACKING:-true}
+      TOKEN_USAGE_TRACKING_MODE: ${TOKEN_USAGE_TRACKING_MODE:-all}
+
       # Security
       CORS_ALLOW_ORIGIN: https://${DOMAIN}
       WEBUI_SESSION_COOKIE_SECURE: "true"
