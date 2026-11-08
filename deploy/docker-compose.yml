@@ -39,6 +39,18 @@ services:
       SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>
       WEB_SEARCH_RESULT_COUNT: "5"
 
+      # Sicherheit
+      CORS_ALLOW_ORIGIN: https://${DOMAIN}
+      WEBUI_SESSION_COOKIE_SECURE: "true"
+      WEBUI_SESSION_COOKIE_SAME_SITE: strict
+      WEBUI_AUTH_COOKIE_SECURE: "true"
+      WEBUI_AUTH_COOKIE_SAME_SITE: strict
+      # Gelten nur bei Neuinstallation (danach Datenbank/Admin-Panel):
+      ENABLE_MFA: "true"
+      JWT_EXPIRES_IN: 7d
+      ENABLE_COMMUNITY_SHARING: "false"
+      SHOW_ADMIN_DETAILS: "false"
+
       # Keine Telemetrie
       ANONYMIZED_TELEMETRY: "false"
       SCARF_NO_ANALYTICS: "true"
