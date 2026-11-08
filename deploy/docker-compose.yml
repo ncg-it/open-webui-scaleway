@@ -72,6 +72,22 @@ services:
     volumes:
       - ./searxng:/etc/searxng:ro
 
+  # Open Terminal: sandboxed Linux shell, file browser and terminal panel for the chat.
+  # Only reachable from Open WebUI on the internal network (no published port).
+  # Connect it in Admin -> Settings -> Integrations -> Open Terminal: http://open-terminal:8000
+  open-terminal:
+    image: ghcr.io/open-webui/open-terminal:0.17.5-slim
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      OPEN_TERMINAL_API_KEY: ${OPEN_TERMINAL_API_KEY:?OPEN_TERMINAL_API_KEY is missing}
+    volumes:
+      # Home directory on the data volume: persists across updates, included in snapshots
+      - /mnt/data/open-terminal:/home/user
+    mem_limit: 2g
+    pids_limit: 512
+
   caddy:
     image: caddy:2.11.9-alpine
     restart: unless-stopped
