@@ -12,6 +12,9 @@ services:
       - /mnt/data/open-webui:/app/backend/data
     environment:
       WEBUI_URL: https://${DOMAIN}
+      # App name in the browser tab, login page and sidebar.
+      # Open WebUI appends " (Open WebUI)" to custom names unless an enterprise license is installed.
+      WEBUI_NAME: ${WEBUI_NAME:-NCG IT Consulting Chat}
       WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY is missing}
 
       # Single-user setup: set ENABLE_SIGNUP=false after the admin account has been created
