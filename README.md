@@ -85,3 +85,16 @@ Anschließend `ENABLE_SIGNUP=false` setzen und erneut deployen. Alternativ im Ad
 - **Logs:** `ssh deploy@chat.ncg-it.com 'cd /opt/open-webui && docker compose logs -f open-webui'`
 - **Restore:** Snapshot in der Konsole in ein Volume umwandeln, die Instance stoppen, die Volumes tauschen (oder in Terraform importieren) und die Instance starten.
 - **Kosten:** Instance (PLAY2-MICRO), Flexible IP, 2 × 20 GB SBS und Snapshots ergeben grob 15–25 €/Monat. Dazu kommen die Token-Kosten der Generative APIs.
+
+## Websuche (SearXNG)
+
+Open WebUI sucht über eine eigene **SearXNG**-Instanz im selben Compose-Stack (`deploy/searxng/settings.yml`).
+Sie ist nur intern erreichbar, braucht keinen API-Key und verursacht keine Zusatzkosten.
+SearXNG fragt mehrere Suchmaschinen anonym ab, ohne Nutzerkonto und ohne Tracking-Cookies.
+
+- Im Chat: unter dem Eingabefeld **Websuche** einschalten (Globus-Symbol). Pro Chat steuerbar.
+- Einstellungen: *Admin Panel → Einstellungen → Websuche* (Engine `searxng`, URL `http://searxng:8080/search?q=<query>`).
+- Secret: `SEARXNG_SECRET` (GitHub-Secret, `openssl rand -hex 32`).
+
+> Die Umgebungsvariablen für Websuche und Standardmodell gelten nur bei einer **Neuinstallation**.
+> Auf einer bestehenden Installation werden sie einmalig im Admin-Panel (oder in der Tabelle `config`) gesetzt.

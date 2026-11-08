@@ -40,6 +40,8 @@ jobs:
           ACME_EMAIL=${{ vars.ACME_EMAIL }}
           WEBUI_SECRET_KEY=${{ secrets.WEBUI_SECRET_KEY }}
           SCW_GENAI_API_KEY=${{ secrets.SCW_GENAI_API_KEY }}
+          SEARXNG_SECRET=${{ secrets.SEARXNG_SECRET }}
+          DEFAULT_MODELS=${{ vars.DEFAULT_MODELS || 'mistral-medium-3.5-128b' }}
           SCW_GENAI_BASE_URL=${{ vars.SCW_GENAI_BASE_URL || 'https://api.scaleway.ai/v1' }}
           ENABLE_SIGNUP=${{ vars.ENABLE_SIGNUP || 'false' }}
           EOF
