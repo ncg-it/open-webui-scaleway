@@ -100,7 +100,7 @@ services:
   open-terminal:
     # Full image: Python, Node.js, build tools, LibreOffice, data libraries and a headless browser,
     # so the model can create Word/Excel/PowerPoint/PDF files and charts.
-    image: ghcr.io/open-webui/open-terminal:0.17.5
+    image: ghcr.io/open-webui/open-terminal:0.17.17
     restart: unless-stopped
     # Start shells and the file browser in the home directory instead of the app code in /app
     working_dir: /home/user
