@@ -83,7 +83,7 @@ services:
       DO_NOT_TRACK: "true"
 
   searxng:
-    image: searxng/searxng:2026.10.30-ffa88e3ba
+    image: searxng/searxng:2026.11.12-de722ab1b
     restart: unless-stopped
     expose:
       - "8080"
